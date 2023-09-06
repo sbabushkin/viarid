@@ -28,6 +28,15 @@ export class AuthResolver {
     return this.authService.login(input.email, input.password, input.deviceId);
   }
 
+  @Mutation(() => LoggedUser) //TODO: remove in future
+  async demoLogin(
+    @InputArg(UserLoginInput) input: UserLoginInput,
+  ): Promise<LoggedUser> {
+    const email = 'dmitry.peperon@viar.id';
+    const pass = 'dmitry.peperon';
+    return this.authService.login(email, pass);
+  }
+
   @Mutation(() => LoggedUser)
   async loginUserByPhone(
     @InputArg(UserLoginByPhoneInput) input: UserLoginByPhoneInput,
