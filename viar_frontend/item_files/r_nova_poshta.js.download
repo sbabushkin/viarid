@@ -1,0 +1,102 @@
+
+$(document).ready(function() {
+
+    var input_city = $('head link[href="#r_nova_poshta_input_city"]').attr('rel');
+
+    var input_department = $('head link[href="#r_nova_poshta_input_department"]').attr('rel');
+    $(document).on("click", input_city, function () {
+
+        start_autocomplete(input_city);
+
+        input_department_add(input_department);
+
+        console.log('start_autocomplete');
+    });
+
+    input_department_add(input_department);
+
+    start_autocomplete(input_city);
+
+    $(document).delegate(input_city, 'change', function() {
+        get_nova_poshta_waterhouses($(this).val(),false);
+    });
+    $(document).on( 'mouseenter mouseleave input change', input_city, function() {
+        $(input_city).attr('autocomplete', 'disabled');
+    });
+
+});
+
+function input_department_add(input_department) {
+
+    if( $(input_department).length && !$(input_department).is("select") ){
+
+        var id_ = $(input_department).attr('id');
+        var class_ = $(input_department).attr('class');
+        var name_ = $(input_department).attr('name');
+
+        $(input_department).replaceWith("<select name='"+name_+"' id='"+id_+"' class='_block_nova_posta_select "+class_+"'></select>");
+
+    }
+}
+
+function get_nova_poshta_waterhouses(text, id_nova) {
+
+    $.ajax({
+        url: 'index.php?route=tool/r_nova_poshta/autocompleteNovaPoshta&id_nova=' + encodeURIComponent(id_nova) + '&filter_city=' + encodeURIComponent(text),
+        dataType: 'json',
+        success: function (json) {
+
+            var data_select = '';
+            var data_not_found = false;
+            for (i in json) {
+                if (json[i]['id']) {
+                    data_select += '<option value="' + json[i]['text'] + '">' + json[i]['text'] + '</option>';
+                } else {
+                    data_not_found = true;
+                    data_select = json[i]['text'];
+                }
+            }
+
+            var this_select = $('._block_nova_posta_select');
+            
+            $(this_select).html(data_select);
+
+            $(this_select).select2({tags: true});
+            
+        }
+    });
+}
+
+function start_autocomplete(input_city) {
+    if ($(input_city).hasClass('_autocomplete')) {
+        return false;
+    }
+
+    $(input_city).autocomplete({
+        minLength: 2,
+        'source': function (request, response) {
+            $.ajax({
+                url: 'index.php?route=tool/r_nova_poshta/autocompleteCity&filter_city=' + encodeURIComponent(request),
+                dataType: 'json',
+                success: function (json) {
+                    console.log(json);
+                    response($.map(json, function (item) {
+                        return {
+                            label: item['text'],
+                            id_nova: item['id_nova'],
+                            value: item['id_nova']
+                        }
+                    }));
+
+                }
+            });
+        },
+        'select': function (item) {
+            $(input_city).val($("<div/>").html(item['label']).text());
+            get_nova_poshta_waterhouses(item['label'], item['id_nova']);
+        }
+    });
+
+    $(input_city).addClass('_autocomplete');
+
+}

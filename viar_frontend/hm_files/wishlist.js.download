@@ -1,0 +1,63 @@
+require(
+    [
+        'jquery',
+        'mage/storage',
+        'Apptus_Apptus/js/view/loader',
+        'apptusjs',
+        'mage/translate'
+    ],
+    function ($, storage, loader, apptusjs, $t) {
+        $(document).on('click', `.widget-ajax-add-to-wishlist`, function (e) {
+            e.preventDefault();
+            var pid = $(this).attr('rev');
+            var self = this;
+            var url = $(this).attr('rel');
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: {'pid': pid},
+                showLoader: true,
+                success: function (response) {
+                    response = JSON.parse(response);
+                    if (response.code == 'Success') {
+                        if (response.flag) {
+                            $(self).addClass('addedInWishlist');
+                        } else {
+                            if ($(self).hasClass('remove-favorite')) {
+                                $(self).removeClass('addedInWishlist');
+                            } else {
+                                $(self).removeClass('addedInWishlist');
+                            }
+                        }
+                        myHmList = getCookie('myhmlist' + websitecode);
+                        //var msg = '<div class="message success"><span>'+$t('Product added successfully in Favourites.')+'</span></div>';
+                    } else {
+                        var msg = '<div class="message success"><span>' + $t('Something went wrong during adding product to Favourites.') + '</span></div>';
+                    }
+                    if ($('body').hasClass('catalog-product-view')) {
+                        $(".pdp-wrap-top .page.messages").after(msg);
+                    } else {
+                        $(".page-header").after(msg);
+                    }
+                    setTimeout(function () {
+                        $(".message").hide();
+                    }, 5000);
+                }
+            });
+        });
+
+        $(document).ready(function(){
+            // Wishlist
+            $('.widget-ajax-add-to-wishlist').removeClass('addedInWishlist');
+            if(myHmList){
+                var dmyHmList = decodeURIComponent(myHmList).split(','); //decoded list
+                if(dmyHmList){
+                    $.each(dmyHmList,function(i,v){
+                        $('#wishlist'+v).addClass('addedInWishlist');
+                        $('.spwishlist'+v).addClass('addedInWishlist');
+                    });
+                }
+            }
+        });
+    }
+);

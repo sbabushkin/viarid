@@ -1,0 +1,139 @@
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+define([
+    'jquery',
+    'mage/smart-keyboard-handler',
+    'matchMedia',
+    'slickSlider',
+    'mage/mage',
+    'mage/ie-class-fixer',
+    'domReady!'
+], function ($, keyboardHandler, mediaCheck) {
+    'use strict';
+
+    if ($('body').hasClass('checkout-cart-index')) {
+        if ($('#co-shipping-method-form .fieldset.rates').length > 0 &&
+            $('#co-shipping-method-form .fieldset.rates :checked').length === 0
+        ) {
+            $('#block-shipping').on('collapsiblecreate', function () {
+                $('#block-shipping').collapsible('forceActivate');
+            });
+        }
+    }
+
+    $('.cart-summary').mage('sticky', {
+        container: '#maincontent'
+    });
+
+    $('.panel.header > .header.links').clone().appendTo('#store\\.links');
+
+    keyboardHandler.apply();
+
+    /**
+     * Add slider banner and categories
+     */
+
+    if ($('.slider__banner').length > 0) {
+        $('.slider__banner .slides').slick({
+            dots: true,
+            infinite: true,
+            speed: 500,
+            arrows: true,
+            slidesToShow: 1,
+            slidesToScroll: 1,
+            autoplaySpeed: 5000,
+            autoplay: true,
+            responsive: [
+                {
+                    breakpoint: 768,
+                    settings: {
+                        arrows: false,
+                    }
+                }
+            ]
+        });
+    }
+
+    if ($('.section__slider').length > 0) {
+        $('.section__slider .slides').slick({
+            dots: true,
+            infinite: true,
+            speed: 500,
+            arrows: true,
+            slidesToShow: 6,
+            slidesToScroll: 6,
+            autoplaySpeed: 5000,
+            autoplay: true,
+            responsive: [
+                {
+                    breakpoint: 768,
+                    settings: {
+                        arrows: false,
+                        slidesToShow: 4,
+                        slidesToScroll: 4,
+                    }
+                },
+                {
+                    breakpoint: 1024,
+                    settings: {
+                        slidesToShow: 5,
+                        slidesToScroll: 5,
+                    }
+                }
+            ]
+        });
+    }
+
+    $(document).ready(function () {
+
+        // Add hover menu desktop
+        let menuItem = $('.primary-menu > ul > li');
+        if(menuItem.length > 0) {
+            mediaCheck({
+                media: '(min-width: 1024px)',
+                entry: $.proxy(function () {
+                    menuItem.mouseenter(function () {
+                        $(this).addClass('open');
+                    }).mouseleave(function () {
+                        $(this).removeClass('open');
+                    });
+                }, this)
+            });
+        }
+
+        // Open menu sub in mobile
+        let menuItemSub = $('.has__sub > .primary-menu-sub-menu');
+        if(menuItemSub.length > 0) {
+            mediaCheck({
+                media: '(max-width: 1023px)',
+                entry: $.proxy(function () {
+                    $(document).on('click', '.has__sub > a', function (e) {
+                        e.preventDefault();
+                        menuItemSub.removeClass('open__sub');
+                        $('.primary-menu > ul').addClass('open__level2');
+                        $(this).next().addClass('open__sub');
+                    });
+
+                    $(document).on('click', '.primary-menu-categories__heading', function (e) {
+                        $('.primary-menu-category').removeClass('open__sub');
+                        $(this).parents('.primary-menu-sub-menu').addClass('open__level3');
+                        $(this).next().addClass('open__sub__child');
+                    });
+
+                    $(document).on('click', '.main-menu__sub__back', function () {
+                        $('.primary-menu > ul').removeClass('open__level2');
+                        $(this).parents('.primary-menu-sub-menu').removeClass('open__sub');
+                    });
+
+                    $(document).on('click', '.sub-sub-heading', function () {
+                        $(this).parents('.primary-menu-sub-menu').removeClass('open__level3');
+                        $(this).parents('.primary-menu-category').removeClass('open__sub__child');
+                    });
+                }, this)
+            });
+        }
+    });
+});

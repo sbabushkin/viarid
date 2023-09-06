@@ -1,0 +1,72 @@
+function myfunction(){
+	// Header Equal Height---------
+	var hgt = jQuery('header').height();
+	jQuery('.empt').height(hgt);
+}
+
+function scrollToAnchor(aid){
+ var aTag = jQuery("a[name='"+ aid +"']");
+ jQuery('html,body').animate({scrollTop: aTag.offset().top - 200}, 'slow');
+}
+ 
+jQuery(window).resize(function(){ myfunction(); });
+
+jQuery(document).ready(function(){
+ jQuery('.downloadhd').on("click", function() {
+  var prodotto = jQuery(this).data("prodotto");
+  var immagine = jQuery(this).data("immagine");
+  
+  ga('send', 'event', 'Immagni HD', 'Download', prodotto);
+  window.location = "https://download.cleaf.it/hdimages/"+ immagine;
+ });
+ 
+	jQuery('.back_to_top a').click(function(e) {
+  e.preventDefault();
+  jQuery('html,body').animate({scrollTop: 0}, 'slow');
+  return false;
+ });
+  
+ jQuery('.anchors a').click(function(e) {
+  scrollToAnchor(jQuery(this).attr('href').replace('#', ''));
+  e.preventDefault();
+  return false;
+ });
+ 
+ // Header Equal Height---------
+	myfunction();
+	 
+	// For back to top fade effct -------------
+	jQuery(window).scroll(function(){
+		if (jQuery(this).scrollTop() > 200) {
+			jQuery('.back_to_top').css({'bottom':'50px'});
+		} else {
+			jQuery('.back_to_top').css({'bottom':'-50px'});
+		}
+	});
+		
+	jQuery('.login a span').click(function(e) {
+  jQuery('.login_form').slideToggle();
+		jQuery('body').toggleClass('hgt');
+		jQuery('nav').removeClass('in');
+		e.stopPropagation();
+	});
+	
+	jQuery('.navbar-toggle').click(function() {
+  jQuery('.login_form').hide();
+ });
+	
+	jQuery('nav ul li ul').parent().prepend('<span></span>');
+	jQuery('nav ul li span').click(function() {
+		jQuery(this).toggleClass('active');
+  jQuery(this).parent().find('ul').slideToggle();
+		jQuery(this).parent().find('ul ul').hide();
+ });
+	
+	jQuery('.navbar-toggle').on("click", function() {
+		if (jQuery('header').hasClass('navbar-toggled')) {
+			jQuery('header').removeClass('navbar-toggled');
+		} else {
+	  jQuery('header').addClass('navbar-toggled');
+		}
+	});
+});
